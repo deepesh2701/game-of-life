@@ -1,0 +1,19 @@
+node {
+    stage('scm'){
+    git 'https://github.com/deepesh2701/game-of-life.git'
+     }
+    stage('build&package')
+    {
+        sh 'mvn package'
+    }
+    stage('artifacts')
+    {
+        archiveArtifacts 'gameoflife-web/target/gameoflife.war'
+        
+    }
+    stage('unit test')
+    {
+        junit 'gameoflife-web/target/surefire-reports/*.xml'
+
+    }
+}
