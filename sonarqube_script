@@ -1,0 +1,28 @@
+node {
+    stage('scm'){
+    git 'https://github.com/deepesh2701/game-of-life.git'
+     }
+    stage('build&package')
+    {    withSonar('sonar')
+       {
+        sh 'mvn clean package sonar:sonar'
+       }
+    }
+    stage('quality gate')
+    {
+    timeout (time: 1, unit : 'HOURS')
+    {def qg = waitforqualitygate()}
+    if (qg.status !='OK')
+    {error "Pipeline aborted due to bad quality of code"}
+    }
+    stage('artifacts')
+    {
+        archiveArtifacts 'gameoflife-web/target/gameoflife.war'
+        
+    }
+    stage('unit test')
+    {
+        junit 'gameoflife-web/target/surefire-reports/*.xml'
+
+    }
+}
